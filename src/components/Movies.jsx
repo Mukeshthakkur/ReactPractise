@@ -113,7 +113,7 @@ class Movies extends React.Component{
                          ))}
                      </tbody>
         
-            </table>
+             </table>
             </div>
         )
     }    
