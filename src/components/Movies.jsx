@@ -1,11 +1,18 @@
 import React from 'react';
 import Like from './like';
+import Pagination from  './pagination';
+import { paginate } from '../utils/paginate';
+
+
+
 class Movies extends React.Component{
 
     
-
+ 
     state={
-         movies : [
+        pageSize :  4,
+        currentPage: 1,
+                 movies : [
     
             {
                 _id: 1,
@@ -56,6 +63,30 @@ class Movies extends React.Component{
                 dailyRentalRate: 2.2,
                 publishDate: '2019-01-03T19:04:28.809Z'
             },
+            {
+                _id: 7,
+                title: 'Vactaion',
+                genre: { id: '1234', name: 'Comedy'},
+                numberInStock: 4,
+                dailyRentalRate: 2.2,
+                publishDate: '2019-01-03T19:04:28.809Z'
+            },
+            {
+                _id: 8,
+                title: 'Joker',
+                genre: { id: '1235', name: 'Thriller'},
+                numberInStock: 4,
+                dailyRentalRate: 2.2,
+                publishDate: '2019-01-03T19:04:28.809Z'
+            },
+            {
+                _id: 9,
+                title: 'Mission Impossible',
+                genre: { id: '1236', name: 'Action'},
+                numberInStock: 4,
+                dailyRentalRate: 2.2,
+                publishDate: '2019-01-03T19:04:28.809Z'
+            },
         
         ]
     }
@@ -68,25 +99,33 @@ class Movies extends React.Component{
     }
 
 
-    handleLike= (movie) =>{
-
-        const  movies = [...this.state.movies];
+    handleLike = (movie) => {
+        const movies = [...this.state.movies];
         const index = movies.indexOf(movie);
         movie[index] = {...movies[index]};
-        movies[index].liked = !movie[index].liked;
+        movies[index].liked = !movies[index].liked;
 
         this.setState({ movies })
-        console.log("like clicked", movie)
     }
 
+    handlePageChange= page => {
+        this.setState({ currentPage:page });
+    }
+  
     render(){
+        const { length: count } = this.state.movies;
+        const { currentPage, pageSize, movies: allMovies } = this.state;
 
-        if (this.state.movies.length === 0 )
-           return <p className="m-4">There are no movie in the list... </p>
-        return(
-            <div>
+        if ( count === 0 ) 
+        return <p className="m-4">There are no movie in the list... </p>
+
+        const movies = paginate(allMovies, currentPage, pageSize)
+        
+           return(
+               <div>
                 <p className="m-4">Showing {this.state.movies.length} movies in the list...</p>
 
+                
                 <table className="table">
                  <thead>                
                      <tr>
@@ -101,7 +140,7 @@ class Movies extends React.Component{
                      <tbody>
 
                           
-                         {this.state.movies.map( movie => ( 
+                         {movies.map( movie => ( 
                          <tr key={movie._id}> 
                              <td>{movie.title}</td>
                              <td>{movie.genre.name}</td>
@@ -114,6 +153,15 @@ class Movies extends React.Component{
                      </tbody>
         
              </table>
+
+
+             <Pagination 
+             itemsCount={count}
+             pageSize = {pageSize}
+             currentPage={currentPage}
+             onPageChange={this.handlePageChange} 
+              />
+
             </div>
         )
     }    
