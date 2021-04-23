@@ -1,170 +1,107 @@
-import React from 'react';
-import Like from './like';
-import Pagination from  './pagination';
-import { paginate } from '../utils/paginate';
+import React from "react";
+import Pagination from "./pagination";
+import { paginate } from "../utils/paginate";
+import { getGenres } from "./services/genreservice";
+import { getMovies } from "./services/movieservies";
+import MoviesTable from "./moviesTable";
+import ListGroup from "./common/filter";
+import Filter from "./common/filter";
+import _ from "lodash";
+
+class Movies extends React.Component {
+  state = {
+    genres: [],
+    movies: [],
+    pageSize: 4,
+    currentPage: 1,
+    sortColumn: { path: "title", order: "asr" },
+  };
+
+  componentDidMount() {
+    const genres = [{ name: "All Genres", id: " " }, ...getGenres()];
+    this.setState({ movies: getMovies(), genres }); 
+  }
+
+  handleDelete = (movie) => {
+    const movies = this.state.movies.filter((m) => m._id !== movie._id);
+    this.setState({ movies });
+    console.log(movies);
+  };
 
 
+  handleLike = (movie) => {
+    const movies = [...this.state.movies];
+    const index = movies.indexOf(movie);
+    movie[index] = { ...movies[index] };
+    movies[index].liked = !movies[index].liked;
+    this.setState({ movies });
+    console.log('likeeeeeeeeeeee....', movie)
+  };
 
-class Movies extends React.Component{
+  handlePageChange = (page) => {
+    this.setState({ currentPage: page });
+  };
 
-    
+  handleGenresSelect = (genre) => {
+    this.setState({ selectedGenre: genre, currentPage: 1 });
+  };
+
+  handleSort = sortColumn => {
+
+    this.setState({ sortColumn });
+  };
  
-    state={
-        pageSize :  4,
-        currentPage: 1,
-                 movies : [
-    
-            {
-                _id: 1,
-                title: 'terminator',
-                genre: { id: '123', name: 'Action'},
-                numberInStock: 1,
-                dailyRentalRate: 2.5,
-                publishDate: '2019-01-03T19:04:28.809Z'
-            },
-        
-            {
-                _id: 2,
-                title: 'Die hard',
-                genre: { id: '124', name: 'Action'},
-                numberInStock: 1,
-                dailyRentalRate: 2.5,
-                publishDate: '2019-01-03T19:04:28.809Z'
-            },
-            {
-                _id: 3,
-                title: 'Get out',
-                genre: { id: '125', name: 'Thriller'},
-                numberInStock: 1,
-                dailyRentalRate: 2.5,
-                publishDate: '2019-01-03T19:04:28.809Z'
-            },
-            {
-                _id: 4,
-                title: 'Trip to Itly',
-                genre: { id: '126', name: 'Comedy'},
-                numberInStock: 7,
-                dailyRentalRate: 2.5,
-                publishDate: '2019-01-03T19:04:28.809Z'
-            },
-            {
-                _id: 5,
-                title: 'Titanic',
-                genre: { id: '127', name: 'Thriller'},
-                numberInStock: 1,
-                dailyRentalRate: 3.4,
-                publishDate: '2019-01-03T19:04:28.809Z'
-            },
-            {
-                _id: 6,
-                title: 'Las vegas',
-                genre: { id: '123', name: 'Comedy'},
-                numberInStock: 4,
-                dailyRentalRate: 2.2,
-                publishDate: '2019-01-03T19:04:28.809Z'
-            },
-            {
-                _id: 7,
-                title: 'Vactaion',
-                genre: { id: '1234', name: 'Comedy'},
-                numberInStock: 4,
-                dailyRentalRate: 2.2,
-                publishDate: '2019-01-03T19:04:28.809Z'
-            },
-            {
-                _id: 8,
-                title: 'Joker',
-                genre: { id: '1235', name: 'Thriller'},
-                numberInStock: 4,
-                dailyRentalRate: 2.2,
-                publishDate: '2019-01-03T19:04:28.809Z'
-            },
-            {
-                _id: 9,
-                title: 'Mission Impossible',
-                genre: { id: '1236', name: 'Action'},
-                numberInStock: 4,
-                dailyRentalRate: 2.2,
-                publishDate: '2019-01-03T19:04:28.809Z'
-            },
-        
-        ]
-    }
+  render() {
+    const { length: count } = this.state.movies;
+    const {
+      currentPage,
+      pageSize,
+      selectedGenre,
+      sortColumn,
+      movies: allMovies,
+    } = this.state;
 
-    handleDelete(movie){
-        const movies = this.state.movies.filter( m => m._id !== movie._id);
-        this.setState({ movies })
+    if (count === 0)
+      return <p className="m-4">There are no movie in the list... </p>;
 
-        console.log(movies)
-    }
+    const filtered = selectedGenre && selectedGenre._id
+      ? allMovies.filter((m) => m.genre.id === selectedGenre._id)
+      : allMovies;
 
+    const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
 
-    handleLike = (movie) => {
-        const movies = [...this.state.movies];
-        const index = movies.indexOf(movie);
-        movie[index] = {...movies[index]};
-        movies[index].liked = !movies[index].liked;
+    const movies = paginate(sorted, currentPage, pageSize);
 
-        this.setState({ movies })
-    }
+    return (
+      <div className="row">
+        <div className="col-2 m-4">
+          <ListGroup
+            items={this.state.genres}
+            onItemSelect={this.handleGenresSelect}
+            selectItem={this.state.selectedGenre}
+          />
+        </div>
 
-    handlePageChange= page => {
-        this.setState({ currentPage:page });
-    }
-  
-    render(){
-        const { length: count } = this.state.movies;
-        const { currentPage, pageSize, movies: allMovies } = this.state;
+        <div className="col">
+          <p className="m-4">Showing {filtered.length} movies in the list...</p>
+          <MoviesTable
+            movies={movies}
+            onLike={this.handleLike}
+            onDelete={this.handleDelete}
+            onSort={this.handleSort}
+            sortColumn={sortColumn}
+          />
 
-        if ( count === 0 ) 
-        return <p className="m-4">There are no movie in the list... </p>
-
-        const movies = paginate(allMovies, currentPage, pageSize)
-        
-           return(
-               <div>
-                <p className="m-4">Showing {this.state.movies.length} movies in the list...</p>
-
-                
-                <table className="table">
-                 <thead>                
-                     <tr>
-                         <th>Title</th>    
-                         <th>Genre</th>
-                         <th>Stock</th>
-                        <th>Rate</th>
-                        <th></th>
-                        <th></th>
-                     </tr>
-                </thead>
-                     <tbody>
-
-                          
-                         {movies.map( movie => ( 
-                         <tr key={movie._id}> 
-                             <td>{movie.title}</td>
-                             <td>{movie.genre.name}</td>
-                             <td>{movie.numberInStock}</td>
-                             <td>{movie.dailyRentalRate}</td>
-                             <td><Like liked={movie.liked} onClick={() => this.handleLike(movie)} /></td>
-                             <td><button onClick={() => this.handleDelete(movie)} className="btn btn-danger btn-sm">Delete</button></td>
-                         </tr>
-                         ))}
-                     </tbody>
-        
-             </table>
-
-
-             <Pagination 
-             itemsCount={count}
-             pageSize = {pageSize}
-             currentPage={currentPage}
-             onPageChange={this.handlePageChange} 
-              />
-
-            </div>
-        )
-    }    
-};    
+          <Pagination
+            itemsCount={filtered.length}
+            pageSize={pageSize}
+            currentPage={currentPage}
+            onPageChange={this.handlePageChange}
+          />
+        </div>
+      </div>
+    );
+  }
+}
 
 export default Movies;
