@@ -1,27 +1,33 @@
-import React from 'react';
-import Movies from './components/Movies';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { Route, Switch } from 'react-router-dom';
-import Home from './Routes/Home';
-import Products from './Routes/products';
-import Admin from './Routes/admin/Admin';
-import Post from './Routes/Post';
-import NavBar from './components/navBar';
+import React from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { Route, Switch, Redirect } from "react-router-dom";
+import Home from "./Routes/Home";
+import Rentals from "./Routes/Rentals";
+import Customer from "./Routes/Customer";
+import NotFound from "./Routes/NotFound";
+import MovieSave from "./components/MovieSave";
+import NavBar from "./Routes/navbar";
+import LoginForm from "./components/LoginForm";
 
-
-
-class App extends React.Component{
-  render(){
-    return(
+class App extends React.Component {
+  render() {
+    return (
       <div>
-      <NavBar />
-      <Route path="/">Movies</Route>
-        <Movies />
+        <NavBar />
+        <Switch>
+        <Route path="/customer" component={Customer} />
+        <Route path="/rentals" component={Rentals} />
+        <Route path="/" exact component={Home} />
+        <Route path="/login" component={LoginForm}/>
+        <Route pathh="/movie" component={MovieSave} />
+        <Route path="/notfound" component={NotFound} />
+        <Redirect from="any" to="home" />
+        <Redirect to='/notfound' />
+        </Switch>
       </div>
-    )
-  }
+    );
+  }               
 }
 
-
-
 export default App;
+  

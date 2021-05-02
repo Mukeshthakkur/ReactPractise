@@ -1,6 +1,9 @@
+import { reduceRight } from "lodash-es";
 import React, { Component } from "react";
 import { Fragment } from "react";
 import Like from "./like";
+import  { Link  } from 'react-router-dom';
+import MovieSave from './MovieSave';
 
 class MoviesTable extends Component {
   raiseSort = (path) => {
@@ -36,7 +39,7 @@ class MoviesTable extends Component {
         <tbody>
           {movies.map((movie) => (
             <tr key={movie._id}>
-              <td>{movie.title}</td>
+              <Link to={` movies/${movie._id}`} componenet={MovieSave}>{movie.title}</Link>
               <td>{movie.genre.name}</td>
               <td>{movie.numberInStock}</td>
               <td>{movie.dailyRentalRate}</td>

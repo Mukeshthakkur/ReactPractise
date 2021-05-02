@@ -1,15 +1,8 @@
-import { divide } from 'lodash-es'
-import React from 'react';
-
-
+import React from "react";
+import Movies from "../components/Movies";
 
 const Home = () => {
-
-    return (<div>
-        <h3>Home</h3>
-
-
-    </div>)
-}
+  return <Movies />;
+};
 
 export default Home;
