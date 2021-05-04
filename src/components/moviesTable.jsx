@@ -1,4 +1,3 @@
-import { reduceRight } from "lodash-es";
 import React, { Component } from "react";
 import { Fragment } from "react";
 import Like from "./like";
